@@ -1,0 +1,9 @@
+
+* Factorise
+
+** Description
+
+   Command line program which factorises a number using the Fermat's
+   factorisation method. It doesn't use floating point numbers. It's
+   designed to use any kind of C integer type.
+
