@@ -4,6 +4,15 @@
 #include <errno.h>
 #include <limits.h>
 #include <stdint.h>
+#include <string.h>
+
+
+/*
+ * Verbose mode
+ */
+
+static bool verbose = false;
+#define VERBOSE_PRINT(...) if (verbose) fprintf(stderr, __VA_ARGS__)
 
 
 /*
@@ -231,15 +240,19 @@ void get_fermat_factors(number n, struct list **out, bool *prime) {
      
      Otherwise it sets *prime to true (even though 1 isn't prime).
   */
+
+  VERBOSE_PRINT("Factoring " NUMFMT ": ", n);
   
   if (n <= 3) {
     /* No factors. */
     if (prime) *prime = true;
+    VERBOSE_PRINT("no factors.\n");
   } else if ((n % 2) == 0) {
     /* Even number. */
     if (prime) *prime = false;
     push(2, out);
     push(n / 2, out);
+    VERBOSE_PRINT(NUMFMT " and " NUMFMT ".\n", (number) 2, n / 2);
   } else {
     /* Search for factors. */
     number a = isqrt(n);
@@ -250,12 +263,14 @@ void get_fermat_factors(number n, struct list **out, bool *prime) {
     if (a > ((n - 3) / 2)) {
       /* End of iteration reached and no factors found. */
       if (prime) *prime = true;
+      VERBOSE_PRINT("no factors.\n");
     } else if (is_square(bsqr)) {
       /* Factors found. */
       number b = isqrt(bsqr);
       if (prime) *prime = false;
       push(a + b, out);
       push(a - b, out);
+      VERBOSE_PRINT(NUMFMT " and " NUMFMT ".\n", a + b, a - b);
     } else {
       /* Try the next pair of numbers. */
       ++a;
@@ -298,7 +313,10 @@ struct list *factorise(number n) {
  */
 
 void usage(char *program) {
-  fprintf(stderr, "Usage: %s NUMBER\n", program);
+  fprintf(stderr,
+          "Usage: %s [-v] NUMBER\n"
+          "  -v shows the factoring progress.\n",
+          program);
   exit(1);
 }
 
@@ -317,10 +335,15 @@ void sanity_check(number n, struct list *factors) {
 }
 
 int main(int argc, char **argv) {
-  if (argc < 2) {
+  if (argc <= 1 || strncmp(argv[1], "-h", 3) == 0) {
     usage(argv[0]);
   } else {
-    number n = strtonum(argv[1]);
+    int numidx = 1;
+    if (strncmp(argv[1], "-v", 3) == 0) {
+      ++numidx;
+      verbose = true;
+    }
+    number n = strtonum(argv[numidx]);
     struct list *factors = factorise(n);
     list_sort(&factors);
     list_print(factors);
