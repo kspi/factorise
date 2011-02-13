@@ -53,8 +53,8 @@ struct list {
 
 #define LIST_EMPTY(list) (!(list))
 #define LIST_NEXT(list) (list) = (list)->tail
-#define LIST_FOREACH(head, l) \
-  for (struct list *head = (l); !LIST_EMPTY(head); LIST_NEXT(head))
+#define LIST_FOREACH(cell, l) \
+  for (struct list *cell = (l); !LIST_EMPTY(cell); LIST_NEXT(cell))
 
 void push(number x, struct list **list) {
   struct list *new_head = malloc(sizeof *new_head);
@@ -73,9 +73,9 @@ number pop(struct list **list) {
   
 
 void list_print(struct list *list) {
-  LIST_FOREACH(head, list) {
-    printf(NUMFMT, head->value);
-    if (head->tail) printf(" ");
+  LIST_FOREACH(cell, list) {
+    printf(NUMFMT, cell->value);
+    if (cell->tail) printf(" ");
   }
   printf("\n");
 }
@@ -327,8 +327,8 @@ void usage(char *program) {
 void sanity_check(number n, struct list *factors) {
   number product = 1;
 
-  LIST_FOREACH(head, factors) {
-    product *= head->value;
+  LIST_FOREACH(cell, factors) {
+    product *= cell->value;
   }
     
   if (product != n) {
