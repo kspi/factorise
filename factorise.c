@@ -7,14 +7,6 @@
 
 
 /*
- * Verbose mode
- */
-
-static bool verbose = false;
-#define VERBOSE_PRINT(...) if (verbose) fprintf(stderr, __VA_ARGS__)
-
-
-/*
  * number — Abstract integer type.
  */
 
@@ -60,6 +52,9 @@ struct list {
 };
 
 #define LIST_EMPTY(list) (!(list))
+#define LIST_NEXT(list) (list) = (list)->tail
+#define LIST_FOREACH(head, l) \
+  for (struct list *head = (l); !LIST_EMPTY(head); LIST_NEXT(head))
 
 void push(number x, struct list **list) {
   struct list *new_head = malloc(sizeof *new_head);
@@ -78,9 +73,9 @@ number pop(struct list **list) {
   
 
 void list_print(struct list *list) {
-  for (; list; list = list->tail) {
-    printf(NUMFMT, list->value);
-    if (list->tail) printf(" ");
+  LIST_FOREACH(head, list) {
+    printf(NUMFMT, head->value);
+    if (head->tail) printf(" ");
   }
   printf("\n");
 }
@@ -185,6 +180,16 @@ void list_sort(struct list **list) {
 
 
 /*
+ * Verbose factoring mode
+ */
+
+static bool verbose_factoring = false;
+#define VERBOSE_PRINT(...) do {                          \
+    if (verbose_factoring) fprintf(stderr, __VA_ARGS__); \
+  } while (0);
+
+
+/*
  * Numeric functions.
  */
 
@@ -194,7 +199,7 @@ number square(number x) {
 
 number ipow(number n, number x) {
   number ret = 1;
-  while (x-- > 0) ret *= n;
+  while (x --> 0) ret *= n;     /* arrow operator */
   return ret;
 }
 
@@ -314,7 +319,7 @@ struct list *factorise(number n) {
 void usage(char *program) {
   fprintf(stderr,
           "Usage: %s [-v] NUMBER\n"
-          "  -v shows the factoring progress.\n",
+          "  -v shows the factoring process.\n",
           program);
   exit(1);
 }
@@ -322,8 +327,8 @@ void usage(char *program) {
 void sanity_check(number n, struct list *factors) {
   number product = 1;
 
-  for (struct list *l = factors; l; l = l->tail) {
-    product *= l->value;
+  LIST_FOREACH(head, factors) {
+    product *= head->value;
   }
     
   if (product != n) {
@@ -340,7 +345,7 @@ int main(int argc, char **argv) {
     int numidx = 1;
     if (strncmp(argv[1], "-v", 3) == 0) {
       ++numidx;
-      verbose = true;
+      verbose_factoring = true;
     }
     number n = strtonum(argv[numidx]);
     struct list *factors = factorise(n);
