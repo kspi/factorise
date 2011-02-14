@@ -20,6 +20,7 @@ $(APP): depend.mk $(OBJS)
 
 $(OBJS): depend.mk Makefile
 
+.PHONY: clean
 clean:
 	rm -f $(APP) $(OBJS) depend.mk
 
