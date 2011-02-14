@@ -198,12 +198,14 @@ number square(number x) {
 }
 
 number ipow(number base, number degree) {
+  /* Raises the integer base to the degree power. O(log n) time. */
+  
   number result = 1;
   while (degree > 0) {
-    if (degree % 2) {
+    if (degree % 2) {           /* If degree is odd, just multiply. */
       result *= base;
       --degree;
-    } else {
+    } else {                    /* If degree is even, b^n = (b^2)^(n/2). */
       base *= base;
       degree >>= 1;
     }
