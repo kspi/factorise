@@ -1,7 +1,7 @@
 APP = factorise
 OBJS = factorise.o
 
-CFLAGS = -std=c99 -pedantic -Wall -g -ggdb -g3 -O3 -pipe
+CFLAGS = -std=c99 -pedantic -Wall -g -ggdb -g3 -O0
 LDFLAGS = 
 
 .PHONY: all
@@ -13,6 +13,8 @@ test-$(APP): $(APP) test
 
 $(APP): $(OBJS)
 	$(CC) $(LDFLAGS) -o $(APP) $(OBJS)
+
+$(OBJS): Makefile
 
 clean:
 	rm -f $(APP) $(OBJS)

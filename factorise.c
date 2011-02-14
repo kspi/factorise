@@ -95,87 +95,47 @@ void list_reverse(struct list **list) {
   *list = prev;
 }
 
-unsigned int list_skip(struct list **list, unsigned int n) {
-  /* Advances list by n elements or until the end.
 
-     Returns the actual number of elements skipped. */
+/*
+ * struct bag* — bag (multiset) of numbers, implemented as a binary
+ * tree.
+ */
 
-  unsigned int skipped = 0;
-  while (n && *list) {
-    *list = (*list)->tail;
-    --n;
-    ++skipped;
+struct bag {
+  number value;
+  unsigned int count;
+  struct bag *left, *right;
+};
+
+void bag_put(number n, struct bag **bag) {
+ loop:
+  if (*bag) {
+    if (n == (*bag)->value) {
+      (*bag)->count++;
+    } else if (n < (*bag)->value) {
+      bag = &((*bag)->left);
+      goto loop;
+    } else {
+      bag = &((*bag)->right);
+      goto loop;
+    }      
+  } else {
+    *bag = malloc(sizeof **bag);
+    (*bag)->value = n;
+    (*bag)->count = 1;
+    (*bag)->left = NULL;
+    (*bag)->right = NULL;
   }
-  return skipped;
 }
 
-void list_sort(struct list **list) {
-  /* Merge sort list in place in O(n log n) time and O(1) space. */
-  
-  unsigned int merges;          /* Amount of merges done last
-                                   cycle. */
-  unsigned int sublist_size = 1;
-    
-  do {
-    /* Repeatedly merge sublists of size sublist_size into *list: */
-    
-    struct list *p, *q;         /* Left and right sublist pointers */
-    unsigned int psize, qsize;  /* and their sizes. */
-    
-    p = *list;                  /* Start at the beginning of list. */
-
-    struct list *tail = NULL;   /* The current last element of the
-                                   list that we are building up. */
-
-    merges = 0;
-    while (!LIST_EMPTY(p)) {    /* Merge until left pointer reaches end. */
-      ++merges;
-
-      q = p;
-      psize = list_skip(&q, sublist_size); /* p continues until q */
-      qsize = sublist_size;                /* q continues until end or
-                                              sublist_size */
-
-      while ((psize > 0) || ((qsize > 0) && (!LIST_EMPTY(q)))) {
-        /* While at least one list has elements: */
-        
-        struct list *elem;
-
-        /* Pick the smaller one … */
-        if (psize == 0) {       /* p empty, pick q */
-          elem = q;
-          list_skip(&q, 1);
-          --qsize;
-        } else if (qsize == 0 || LIST_EMPTY(q)) { /* q empty */
-          elem = p;
-          list_skip(&p, 1);
-          --psize;          
-        } else if (p->value <= q->value) { /* p smaller or equal, pick p */
-          elem = p;
-          list_skip(&p, 1);
-          --psize;          
-        } else {                /* q smaller */
-          elem = q;
-          list_skip(&q, 1);
-          --qsize;
-        }
-
-        /* … append it to the new list. */
-        if (LIST_EMPTY(tail)) {
-          *list = elem;
-        } else {
-          tail->tail = elem;
-        }
-        tail = elem;
-      }
-
-      /* q either points to the first element of the next sublist or
-         the end of the list. Either way, advance p there: */
-      p = q;
+void bag_print(struct bag *bag) {
+  if (bag) {
+    bag_print(bag->left);
+    for (unsigned int i = 0; i < bag->count; i++) {
+      printf(NUMFMT " ", bag->value);
     }
-    tail->tail = NULL;
-    sublist_size *= 2;
-  } while (merges > 1);
+    bag_print(bag->right);
+  }
 }
 
 
@@ -293,13 +253,13 @@ void get_fermat_factors(number n, struct list **out, bool *prime) {
   }
 }
 
-struct list *factorise(number n) {
-  struct list *prime_factors = NULL;
+struct bag *factorise(number n) {
+  struct bag *prime_factors = NULL;
   struct list *factors = NULL;
 
 #if UNSIGNED == 0
   if (n < -1) {
-    push(-1, &prime_factors);
+    bag_put(-1, &prime_factors);
     n *= -1;
   }
 #endif
@@ -307,13 +267,13 @@ struct list *factorise(number n) {
   bool prime;
   get_fermat_factors(n, &factors, &prime);
   if (prime) {
-    push(n, &prime_factors);
+    bag_put(n, &prime_factors);
   } else {
     while (!LIST_EMPTY(factors)) {
       number x = pop(&factors);
       get_fermat_factors(x, &factors, &prime);
       if (prime) {
-        push(x, &prime_factors);
+        bag_put(x, &prime_factors);
       }
     }
   }
@@ -358,10 +318,8 @@ int main(int argc, char **argv) {
       verbose_factoring = true;
     }
     number n = strtonum(argv[numidx]);
-    struct list *factors = factorise(n);
-    list_sort(&factors);
-    list_print(factors);
-    sanity_check(n, factors);
+    struct bag *factors = factorise(n);
+    bag_print(factors);
   }
   return 0;
 }
