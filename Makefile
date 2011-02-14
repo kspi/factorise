@@ -1,5 +1,5 @@
 APP = factorise
-OBJS = factorise.o
+OBJS = main.o factorise.o number.o list.o multiset.o
 
 CFLAGS = -std=c99 -pedantic -Wall -g -ggdb -g3 -O0
 LDFLAGS = 
