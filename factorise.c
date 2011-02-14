@@ -69,8 +69,7 @@ number pop(struct list **list) {
   *list = (*list)->tail;
   free(old_head);
   return value;
-}
-  
+}  
 
 void list_print(struct list *list) {
   LIST_FOREACH(cell, list) {
@@ -80,61 +79,55 @@ void list_print(struct list *list) {
   printf("\n");
 }
 
-void list_reverse(struct list **list) {
-  /* Reverses a list in place, O(n). */
-  
-  struct list *cur, *next, *prev;
-  prev = NULL;
-  cur = *list;
-  while (!LIST_EMPTY(cur)) {
-    next = cur->tail;
-    cur->tail = prev;
-    prev = cur;
-    cur = next;
-  }
-  *list = prev;
-}
-
 
 /*
- * struct bag* — bag (multiset) of numbers, implemented as a binary
+ * struct multiset* — multiset of numbers, implemented as a binary
  * tree.
  */
 
-struct bag {
+struct multiset {
   number value;
   unsigned int count;
-  struct bag *left, *right;
+  struct multiset *left, *right;
 };
 
-void bag_put(number n, struct bag **bag) {
+void multiset_put(number n, struct multiset **multiset) {
  loop:
-  if (*bag) {
-    if (n == (*bag)->value) {
-      (*bag)->count++;
-    } else if (n < (*bag)->value) {
-      bag = &((*bag)->left);
+  if (*multiset) {
+    if (n == (*multiset)->value) {
+      (*multiset)->count++;
+    } else if (n < (*multiset)->value) {
+      multiset = &((*multiset)->left);
       goto loop;
     } else {
-      bag = &((*bag)->right);
+      multiset = &((*multiset)->right);
       goto loop;
     }      
   } else {
-    *bag = malloc(sizeof **bag);
-    (*bag)->value = n;
-    (*bag)->count = 1;
-    (*bag)->left = NULL;
-    (*bag)->right = NULL;
+    *multiset = malloc(sizeof **multiset);
+    (*multiset)->value = n;
+    (*multiset)->count = 1;
+    (*multiset)->left = NULL;
+    (*multiset)->right = NULL;
   }
 }
 
-void bag_print(struct bag *bag) {
-  if (bag) {
-    bag_print(bag->left);
-    for (unsigned int i = 0; i < bag->count; i++) {
-      printf(NUMFMT " ", bag->value);
-    }
-    bag_print(bag->right);
+void multiset_to_list(struct multiset *multiset, struct list **out) {
+  /* Returns a list of numbers in the multiset, in increasing
+     order. */
+  
+  if (multiset) {
+    multiset_to_list(multiset->right, out);
+    push(multiset->value, out);
+    multiset_to_list(multiset->left, out);
+  }
+}
+
+void multiset_free(struct multiset *multiset) {
+  if (multiset) {
+    multiset_free(multiset->left);
+    multiset_free(multiset->right);
+    free(multiset);
   }
 }
 
@@ -253,13 +246,13 @@ void get_fermat_factors(number n, struct list **out, bool *prime) {
   }
 }
 
-struct bag *factorise(number n) {
-  struct bag *prime_factors = NULL;
+struct multiset *factorise(number n) {
+  struct multiset *prime_factors = NULL;
   struct list *factors = NULL;
 
 #if UNSIGNED == 0
   if (n < -1) {
-    bag_put(-1, &prime_factors);
+    multiset_put(-1, &prime_factors);
     n *= -1;
   }
 #endif
@@ -267,13 +260,13 @@ struct bag *factorise(number n) {
   bool prime;
   get_fermat_factors(n, &factors, &prime);
   if (prime) {
-    bag_put(n, &prime_factors);
+    multiset_put(n, &prime_factors);
   } else {
     while (!LIST_EMPTY(factors)) {
       number x = pop(&factors);
       get_fermat_factors(x, &factors, &prime);
       if (prime) {
-        bag_put(x, &prime_factors);
+        multiset_put(x, &prime_factors);
       }
     }
   }
@@ -318,8 +311,12 @@ int main(int argc, char **argv) {
       verbose_factoring = true;
     }
     number n = strtonum(argv[numidx]);
-    struct bag *factors = factorise(n);
-    bag_print(factors);
+    struct multiset *factor_set = factorise(n);
+    struct list *factors = NULL;
+    multiset_to_list(factor_set, &factors);
+    multiset_free(factor_set);
+    sanity_check(n, factors);
+    list_print(factors);
   }
   return 0;
 }
