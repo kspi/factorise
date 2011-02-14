@@ -28,7 +28,9 @@ void multiset_to_list(struct multiset *multiset, struct list **out) {
   
   if (multiset) {
     multiset_to_list(multiset->right, out);
-    push(multiset->value, out);
+    for (unsigned int i = 0; i < multiset->count; i++) {
+      push(multiset->value, out);
+    }
     multiset_to_list(multiset->left, out);
   }
 }

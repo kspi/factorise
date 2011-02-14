@@ -33,11 +33,20 @@ int main(int argc, char **argv) {
   if (argc <= 1 || strncmp(argv[1], "-h", 3) == 0) {
     usage(argv[0]);
   } else {
-    int numidx = 1;
-    if (strncmp(argv[1], "-v", 3) == 0) {
-      ++numidx;
-      verbose_factoring = true;
+    unsigned int numidx = 1;
+    bool options_done = false;
+    while (!options_done) {
+      if (strncmp(argv[1], "-v", 3) == 0) {
+        ++numidx;
+        verbose_factoring = true;
+      } else if (strncmp(argv[1], "-t", 3) == 0) {
+        ++numidx;
+        /* tex_output = true; */
+      } else {
+        options_done = true;
+      }
     }
+    
     number n = strtonum(argv[numidx]);
     struct multiset *factor_set = factorise(n);
     struct list *factors = NULL;
