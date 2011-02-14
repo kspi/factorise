@@ -197,10 +197,18 @@ number square(number x) {
   return x * x;
 }
 
-number ipow(number n, number x) {
-  number ret = 1;
-  while (x --> 0) ret *= n;     /* arrow operator */
-  return ret;
+number ipow(number base, number degree) {
+  number result = 1;
+  while (degree > 0) {
+    if (degree % 2) {
+      result *= base;
+      --degree;
+    } else {
+      base *= base;
+      degree >>= 1;
+    }
+  } 
+  return result;
 }
 
 number isqrt(number n) {
