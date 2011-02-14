@@ -36,10 +36,10 @@ int main(int argc, char **argv) {
     unsigned int numidx = 1;
     bool options_done = false;
     while (!options_done) {
-      if (strncmp(argv[1], "-v", 3) == 0) {
+      if (strncmp(argv[numidx], "-v", 3) == 0) {
         ++numidx;
         verbose_factoring = true;
-      } else if (strncmp(argv[1], "-t", 3) == 0) {
+      } else if (strncmp(argv[numidx], "-t", 3) == 0) {
         ++numidx;
         /* tex_output = true; */
       } else {

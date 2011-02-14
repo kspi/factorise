@@ -93,13 +93,14 @@ void get_fermat_factors(number n, struct list **out, bool *prime) {
     /* Search for factors. */
     number a = isqrt(n);
     number bsqr;
-    
+
+    unsigned int iterations = 0;
   loop:
     bsqr = square(a) - n;
     if (a > ((n - 3) / 2)) {
       /* End of iteration reached and no factors found. */
       if (prime) *prime = true;
-      VERBOSE_PRINT("no factors.\n");
+      VERBOSE_PRINT("no factors (%u iterations).\n", iterations);
     } else if (is_square(bsqr)) {
       /* Factors found. */
       number b = isqrt(bsqr);
@@ -110,6 +111,7 @@ void get_fermat_factors(number n, struct list **out, bool *prime) {
     } else {
       /* Try the next pair of numbers. */
       ++a;
+      ++iterations;
       goto loop;
     }
   }
