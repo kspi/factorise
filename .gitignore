@@ -1,0 +1,4 @@
+factorise
+*.o
+test_*
+depend.mk
