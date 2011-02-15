@@ -13,7 +13,7 @@ t() {
     
     if [ $ret -eq 0 ] && ( echo "$output" | grep -q "$expected_output" )
     then
-        printf "Pass: %10s → %s\n" "$input" "$output"
+        printf "pass: %10s → %s\n" "$input" "$output"
     else
         printf "FAIL: %10s → %s\n" "$input" "$expected_output"
         echo   "    Actual output: $output"

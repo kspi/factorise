@@ -4,20 +4,27 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-#define BEGIN                                   \
+#define BEGIN_TEST                              \
   int main() {                                  \
   int __tests_result = 0;                       \
   printf(__FILE__ ":\n");
 
-#define END return __tests_result; }
+#define END_TEST                                \
+  if (__tests_result == 0) {                    \
+    printf("All tests passed.\n");              \
+  } else {                                      \
+    printf("SOME TESTS FAILED.\n");             \
+  }                                             \
+  return __tests_result;                        \
+  }
 
-#define SHOW(statement)                         \
-  printf("Show: " #statement "\n");             \
-  statement;
+#define SHOW(...)                               \
+  printf("show: " #__VA_ARGS__ "\n");           \
+  __VA_ARGS__;
 
 #define TEST(condition)                         \
   if (condition) {                              \
-    printf("Pass: " #condition "\n");           \
+    printf("pass: " #condition "\n");           \
   } else {                                      \
     printf("FAIL: " #condition "\n");           \
     ++__tests_result;                           \
