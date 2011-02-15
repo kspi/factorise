@@ -1,14 +1,24 @@
 APP := factorise
 
-SOURCES := main.c factorise.c number.c list.c multiset.c 
-HEADERS := factorise.h number.h list.h multiset.h
+SOURCES := \
+	src/main.c \
+	src/factorise.c \
+	src/number.c \
+	src/list.c \
+	src/multiset.c
+
+HEADERS := \
+	src/factorise.h \
+	src/number.h \
+	src/list.h \
+	src/multiset.h
 
 TESTS := test_list
 
 OBJS := $(patsubst %.c,%.o,$(SOURCES))
-TEST_OBJS := $(subst main.o,,$(OBJS))
+TEST_OBJS := $(subst src/main.o,,$(OBJS))
 
-CFLAGS := -std=c99 -pedantic -Wall -g -ggdb -g3 -O0 -I.
+CFLAGS := -std=c99 -pedantic -Wall -g -ggdb -g3 -O0
 LDFLAGS := 
 
 .PHONY: all
@@ -24,7 +34,7 @@ test-$(APP): $(APP) test.sh
 	./test.sh
 
 test_%: tests/test_%.c $(TEST_OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -Isrc $(LDFLAGS) -o $@ $^
 
 $(APP): depend.mk $(OBJS)
 	$(CC) $(LDFLAGS) -o $(APP) $(OBJS)
