@@ -19,7 +19,7 @@ void sanity_check(number n, struct list *factors) {
   number product = 1;
 
   LIST_FOREACH(cell, factors) {
-    product *= cell->value;
+    product *= LIST_HEAD(cell, number);
   }
     
   if (product != n) {
@@ -49,8 +49,15 @@ int main(int argc, char **argv) {
     
     number n = strtonum(argv[numidx]);
     struct list *factors = factorise(n);
-    list_sort(&factors);
-    list_print(factors);
+    list_sort(&factors, num_less_eq);
+    LIST_FOREACH(cell, factors) {
+      printf(NUMFMT, LIST_HEAD(cell, number));
+      if (!LIST_EMPTY(cell->tail)) {
+        printf(" ");
+      } else {
+        printf("\n");
+      }
+    }
     sanity_check(n, factors);
   }
   return 0;

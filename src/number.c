@@ -29,4 +29,12 @@ number strtonum(const char *x) {
   return ret;
 }
 
+number *new_num(number n) {
+  number *ret = malloc(sizeof *ret);
+  *ret = n;
+  return ret;
+}
 
+bool num_less_eq(void *a, void *b) {
+  return *(number *)a <= *(number *)b;
+}

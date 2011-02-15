@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "factorise.h"
 
 /*
@@ -86,8 +87,8 @@ void get_fermat_factors(number n, struct list **out, bool *prime) {
   } else if ((n % 2) == 0) {
     /* Even number. */
     if (prime) *prime = false;
-    push(2, out);
-    push(n / 2, out);
+    list_push(new_num(2), out);
+    list_push(new_num(n / 2), out);
     VERBOSE_PRINT(NUMFMT " and " NUMFMT ".\n", (number) 2, n / 2);
   } else {
     /* Search for factors. */
@@ -105,8 +106,8 @@ void get_fermat_factors(number n, struct list **out, bool *prime) {
       /* Factors found. */
       number b = isqrt(bsqr);
       if (prime) *prime = false;
-      push(a + b, out);
-      push(a - b, out);
+      list_push(new_num(a + b), out);
+      list_push(new_num(a - b), out);
       VERBOSE_PRINT(NUMFMT " and " NUMFMT ".\n", a + b, a - b);
     } else {
       /* Try the next pair of numbers. */
@@ -131,13 +132,15 @@ struct list *factorise(number n) {
   bool prime;
   get_fermat_factors(n, &factors, &prime);
   if (prime) {
-    push(n, &prime_factors);
+    list_push(new_num(n), &prime_factors);
   } else {
     while (!LIST_EMPTY(factors)) {
-      number x = pop(&factors);
-      get_fermat_factors(x, &factors, &prime);
+      number *x = list_pop(&factors);
+      get_fermat_factors(*x, &factors, &prime);
       if (prime) {
-        push(x, &prime_factors);
+        list_push(x, &prime_factors);
+      } else {
+        free(x);
       }
     }
   }
