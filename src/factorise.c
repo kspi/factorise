@@ -117,13 +117,13 @@ void get_fermat_factors(number n, struct list **out, bool *prime) {
   }
 }
 
-struct multiset *factorise(number n) {
-  struct multiset *prime_factors = NULL;
+struct list *factorise(number n) {
+  struct list *prime_factors = NULL;
   struct list *factors = NULL;
 
 #if UNSIGNED == 0
   if (n < -1) {
-    multiset_put(-1, &prime_factors);
+    push(-1, &prime_factors);
     n *= -1;
   }
 #endif
@@ -131,13 +131,13 @@ struct multiset *factorise(number n) {
   bool prime;
   get_fermat_factors(n, &factors, &prime);
   if (prime) {
-    multiset_put(n, &prime_factors);
+    push(n, &prime_factors);
   } else {
     while (!LIST_EMPTY(factors)) {
       number x = pop(&factors);
       get_fermat_factors(x, &factors, &prime);
       if (prime) {
-        multiset_put(x, &prime_factors);
+        push(x, &prime_factors);
       }
     }
   }

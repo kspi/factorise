@@ -5,13 +5,11 @@ SOURCES := \
 	src/factorise.c \
 	src/number.c \
 	src/list.c \
-	src/multiset.c
 
 HEADERS := \
 	src/factorise.h \
 	src/number.h \
 	src/list.h \
-	src/multiset.h
 
 TESTS := test_list
 

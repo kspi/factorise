@@ -20,5 +20,6 @@ struct list {
 void push(number x, struct list **list);
 number pop(struct list **list);
 void list_print(struct list *list);
+void list_sort(struct list **list);
 
 #endif

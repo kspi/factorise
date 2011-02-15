@@ -48,12 +48,10 @@ int main(int argc, char **argv) {
     }
     
     number n = strtonum(argv[numidx]);
-    struct multiset *factor_set = factorise(n);
-    struct list *factors = NULL;
-    multiset_to_list(factor_set, &factors);
-    multiset_free(factor_set);
-    sanity_check(n, factors);
+    struct list *factors = factorise(n);
+    list_sort(&factors);
     list_print(factors);
+    sanity_check(n, factors);
   }
   return 0;
 }
