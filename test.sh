@@ -11,7 +11,7 @@ t() {
     local output="$($program $input 2>&1)"
     local ret="$?"
     
-    if [ $ret -eq 0 ] && echo "$output" | grep -q "$expected_output"
+    if [ $ret -eq 0 ] && ( echo "$output" | grep -q "$expected_output" )
     then
         printf "Pass: %10s → %s\n" "$input" "$output"
     else

@@ -12,8 +12,8 @@ LDFLAGS :=
 all: $(APP) test-$(APP)
 
 .PHONY: test-$(APP)
-test-$(APP): $(APP) test
-	./test
+test-$(APP): $(APP) test.sh
+	./test.sh
 
 $(APP): depend.mk $(OBJS)
 	$(CC) $(LDFLAGS) -o $(APP) $(OBJS)
