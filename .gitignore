@@ -1,4 +1,5 @@
 factorise
 *.o
 test_*
+!test_*.c
 depend.mk
