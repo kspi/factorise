@@ -18,7 +18,15 @@ typedef struct {
 } bignum;
 
 bignum *bignum_from_chunk(bignum_chunk x);
+void bignum_free(bignum *n);
+bignum *bignum_copy(bignum *n);
+
 bool bignum_eq(bignum *a, bignum *b);
+bool bignum_lt(bignum *a, bignum *b);
+bool bignum_gt(bignum *a, bignum *b);
+bool bignum_lteq(bignum *a, bignum *b);
+bool bignum_gteq(bignum *a, bignum *b);
+
 char *bignum_to_str(const bignum *n);
 
 #endif
