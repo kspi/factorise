@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "bignum.h"
 
 static bignum_digit *digit_new(bignum_digit x) {
@@ -31,7 +32,7 @@ void bignum_free(bignum *n) {
   free(n);
 }
 
-bignum *bignum_copy(bignum *n) {
+bignum *bignum_copy(const bignum *n) {
   bignum *new = bignum_empty();
   new->size = n->size;
   new->digits = list_copy(n->digits, (copy_fn *)digit_copy);
@@ -166,10 +167,86 @@ void bignum_add(bignum **a, bignum *b) {
   }
 }
 
-static void bignum_mini_divmod(bignum **n, bignum_digit divisor, bignum_digit *remainder) {
+static void bignum_mini_divmod(bignum *n,
+                               bignum_digit divisor,
+                               bignum_digit *remainder)
+{
+  if (divisor == 0) {
+    fprintf(stderr, "Division by zero.");
+    abort();
+  }
   
+  list *cell = n->digits;
+  list *prev_cell = NULL;
+
+  if (LIST_EMPTY(cell)) {
+    *remainder = 0;
+  } else {
+    *remainder = LIST_HEAD(cell, bignum_digit) % divisor;
+    
+  loop:
+    if (prev_cell) {
+      LIST_HEAD(prev_cell, bignum_digit) =
+        LIST_HEAD(cell, bignum_digit) % divisor;
+    }
+    LIST_HEAD(cell, bignum_digit) = LIST_HEAD(cell, bignum_digit) / divisor;
+    if (LIST_EMPTY(cell->tail)) {
+      if (LIST_HEAD(cell, bignum_digit) == 0) {
+        free(cell->value);
+        free(cell);
+        --n->size;
+        if (prev_cell) {
+          prev_cell->tail = NULL;
+        } else {
+          n->digits = NULL;
+        }
+      }
+    } else {
+      prev_cell = cell;
+      LIST_NEXT(cell);
+      goto loop;
+    }
+  }
 }
 
-char *bignum_to_str(const bignum *n) {
 
+char *bignum_to_str(const bignum *n) {
+  unsigned int strsize = 32;
+  char *str = malloc(strsize * sizeof *str);
+
+  static const bignum_digit base = 10;
+  static const char *digits = "0123456789";
+  bignum *zero = bignum_from_digit(0);
+  
+  bignum *m = bignum_copy(n);
+  
+  unsigned int i = 0;
+  while (bignum_gt(m, zero)) {
+    bignum_digit rem;
+    bignum_mini_divmod(m, base, &rem);
+
+    if (i > strsize) {
+      strsize *= 2;
+      str = realloc(str, strsize * sizeof *str);
+    }
+
+    str[i] = digits[rem];
+    ++i;
+  }
+
+  bignum_free(zero);
+  bignum_free(m);
+
+  str[i] = '\0';
+  strsize = i + 1;
+  str = realloc(str, strsize * sizeof *str);
+
+  /* Reverse the number string. */
+  for (unsigned int j = 0; j < i / 2; j++) {
+    char t = str[j];
+    str[j] = str[i - 1 - j];
+    str[i - 1 - j] = t;
+  }
+  
+  return str;
 }

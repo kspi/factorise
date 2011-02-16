@@ -22,7 +22,7 @@ typedef struct {
 
 bignum *bignum_from_digit(bignum_digit x);
 void bignum_free(bignum *n);
-bignum *bignum_copy(bignum *n);
+bignum *bignum_copy(const bignum *n);
 
 bool bignum_eq(bignum *a, bignum *b);
 bool bignum_lt(bignum *a, bignum *b);
