@@ -47,4 +47,8 @@ depend.mk: $(SOURCES) $(INCLUDES)
 # the -M switch probably only works with gcc
 	$(CC) $(CFLAGS) -M $(SOURCES) $(INCLUDES) > depend.mk
 
+.PHONY: check-syntax
+check-syntax:
+	$(CC) $(CFLAGS) -fsyntax-only $(CHK_SOURCES)
+
 -include depend.mk
