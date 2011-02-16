@@ -1,39 +1,40 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "bignum.h"
 
-static bignum_chunk *chunk_new(bignum_chunk x) {
-  bignum_chunk *result = malloc(sizeof *result);
+static bignum_digit *digit_new(bignum_digit x) {
+  bignum_digit *result = malloc(sizeof *result);
   *result = x;
   return result;
 }
 
-static bignum_chunk *chunk_copy(bignum_chunk *x) {
-  return chunk_new(*x);
+static bignum_digit *digit_copy(bignum_digit *x) {
+  return digit_new(*x);
 }
 
 static bignum *bignum_empty() {
   bignum *result = malloc(sizeof *result);
-  result->chunks = NULL;
+  result->digits = NULL;
   result->size = 0;
   return result;
 }
 
-bignum *bignum_from_chunk(bignum_chunk x) {
+bignum *bignum_from_digit(bignum_digit x) {
   bignum *n = bignum_empty();
-  list_push(chunk_new(x), &n->chunks);
+  list_push(digit_new(x), &n->digits);
   n->size = 1;
   return n;
 }
 
 void bignum_free(bignum *n) {
-  list_free(n->chunks, free);
+  list_free(n->digits, free);
   free(n);
 }
 
 bignum *bignum_copy(bignum *n) {
   bignum *new = bignum_empty();
   new->size = n->size;
-  new->chunks = list_copy(n->chunks, (copy_fn *)chunk_copy);
+  new->digits = list_copy(n->digits, (copy_fn *)digit_copy);
   return new;
 }
 
@@ -41,15 +42,15 @@ bool bignum_eq(bignum *a, bignum *b) {
   if (a->size != b->size) {
     return false;
   } else {
-    list *p = a->chunks;
-    list *q = b->chunks;
+    list *p = a->digits;
+    list *q = b->digits;
     
   loop:
     if (LIST_EMPTY(p) && LIST_EMPTY(q)) {
       return true;
     } else if (LIST_EMPTY(p) || LIST_EMPTY(q)) {
       return false;
-    } else if (LIST_HEAD(p, bignum_chunk) != LIST_HEAD(q, bignum_chunk)) {
+    } else if (LIST_HEAD(p, bignum_digit) != LIST_HEAD(q, bignum_digit)) {
       return false;
     } else {
       LIST_NEXT(p);
@@ -63,15 +64,15 @@ bool bignum_lt(bignum *a, bignum *b) {
   if (a->size > b->size) {
     return false;
   } else {
-    list *p = a->chunks;
-    list *q = b->chunks;
+    list *p = a->digits;
+    list *q = b->digits;
     
   loop:
     if (LIST_EMPTY(p)) {
       return true;
     } else if (LIST_EMPTY(q)) {
       return false;
-    } else if (LIST_HEAD(p, bignum_chunk) >= LIST_HEAD(q, bignum_chunk)) {
+    } else if (LIST_HEAD(p, bignum_digit) >= LIST_HEAD(q, bignum_digit)) {
       return false;
     } else {
       LIST_NEXT(p);
@@ -85,15 +86,15 @@ bool bignum_gt(bignum *a, bignum *b) {
   if (a->size < b->size) {
     return false;
   } else {
-    list *p = a->chunks;
-    list *q = b->chunks;
+    list *p = a->digits;
+    list *q = b->digits;
     
   loop:
     if (LIST_EMPTY(q)) {
       return true;
     } else if (LIST_EMPTY(p)) {
       return false;
-    } else if (LIST_HEAD(p, bignum_chunk) <= LIST_HEAD(q, bignum_chunk)) {
+    } else if (LIST_HEAD(p, bignum_digit) <= LIST_HEAD(q, bignum_digit)) {
       return false;
     } else {
       LIST_NEXT(p);
@@ -112,61 +113,61 @@ bool bignum_gteq(bignum *a, bignum *b) {
 }
 
 void bignum_add(bignum **a, bignum *b) {
-  list **p = &((*a)->chunks);
-  list **q = &(b->chunks);
+  list **p = &((*a)->digits);
+  list **q = &(b->digits);
   
-  bignum_chunk carry = 0;
+  bignum_digit carry = 0;
 
  loop:
   if (LIST_EMPTY(*p) && LIST_EMPTY(*q)) {
-    /* Both lists are empty, so we just create a new chunk for the
+    /* Both lists are empty, so we just create a new digit for the
        carry, if there is any. */
     if (carry) {
-      list *chunk = malloc(sizeof *chunk);
-      chunk->value = chunk_new(carry);
-      chunk->tail = NULL;
-      *p = chunk;
+      list *cell = malloc(sizeof *cell);
+      cell->value = digit_new(carry);
+      cell->tail = NULL;
+      *p = cell;
       ++(*a)->size;
     }
   } else if (LIST_EMPTY(*p)) {
-    /* Just p is empty, so we create a new chunk for it. */
-    bignum_larger_chunk sum =
-      ((bignum_larger_chunk)carry) +
-      ((bignum_larger_chunk)LIST_HEAD(*q, bignum_chunk));
-    carry = (bignum_chunk)(sum / BIGNUM_CHUNK_MODULO);
-    list *chunk = malloc(sizeof *chunk);
-    chunk->value = chunk_new((bignum_chunk)(sum % BIGNUM_CHUNK_MODULO));
-    chunk->tail = NULL;
-    *p = chunk;
+    /* Just p is empty, so we create a new digit for it. */
+    bignum_overflow sum =
+      ((bignum_overflow)carry) +
+      ((bignum_overflow)LIST_HEAD(*q, bignum_digit));
+    carry = (bignum_digit)(sum / BIGNUM_BASE);
+    list *cell = malloc(sizeof *cell);
+    cell->value = digit_new((bignum_digit)(sum % BIGNUM_BASE));
+    cell->tail = NULL;
+    *p = cell;
     ++(*a)->size;
     p = &((*p)->tail);
     goto loop;
   } else if (LIST_EMPTY(*q)) {
     /* Just q is empty, so we replace p's value with the new one. */
-    bignum_larger_chunk sum =
-      ((bignum_larger_chunk)carry) +
-      ((bignum_larger_chunk)LIST_HEAD(*p, bignum_chunk));
-    carry = (bignum_chunk)(sum / BIGNUM_CHUNK_MODULO);
+    bignum_overflow sum =
+      ((bignum_overflow)carry) +
+      ((bignum_overflow)LIST_HEAD(*p, bignum_digit));
+    carry = (bignum_digit)(sum / BIGNUM_BASE);
     free((*p)->value);
-    (*p)->value = chunk_new((bignum_chunk)(sum % BIGNUM_CHUNK_MODULO));
+    (*p)->value = digit_new((bignum_digit)(sum % BIGNUM_BASE));
     p = &((*p)->tail);
     goto loop;
   } else {
-    bignum_larger_chunk sum =
-      ((bignum_larger_chunk)carry) +
-      ((bignum_larger_chunk)LIST_HEAD(*p, bignum_chunk)) +
-      ((bignum_larger_chunk)LIST_HEAD(*q, bignum_chunk));
-    carry = (bignum_chunk)(sum / BIGNUM_CHUNK_MODULO);
+    bignum_overflow sum =
+      ((bignum_overflow)carry) +
+      ((bignum_overflow)LIST_HEAD(*p, bignum_digit)) +
+      ((bignum_overflow)LIST_HEAD(*q, bignum_digit));
+    carry = (bignum_digit)(sum / BIGNUM_BASE);
     free((*p)->value);
-    (*p)->value = chunk_new((bignum_chunk)(sum % BIGNUM_CHUNK_MODULO));
+    (*p)->value = digit_new((bignum_digit)(sum % BIGNUM_BASE));
     p = &((*p)->tail);
     q = &((*q)->tail);
     goto loop;
   }
 }
 
-void bignum_divmod(bignum *a, bignum *d, bignum **quot, bignum **rem) {
-
+static void bignum_mini_divmod(bignum **n, bignum_digit divisor, bignum_digit *remainder) {
+  
 }
 
 char *bignum_to_str(const bignum *n) {
