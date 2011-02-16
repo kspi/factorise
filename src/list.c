@@ -31,7 +31,7 @@ static unsigned int list_skip(list **list, unsigned int n) {
   return skipped;
 }
 
-void list_sort(list **l, sort_compare_fn less_eq) {
+void list_sort(list **l, sort_compare_fn *less_eq) {
   /* Merge sort list in place in O(n log n) time and O(1) space. */
   
   unsigned int merges;          /* Amount of merges done last
@@ -101,7 +101,7 @@ void list_sort(list **l, sort_compare_fn less_eq) {
   } while (merges > 1);
 }
 
-void list_free(list *l, free_fn free_value) {
+void list_free(list *l, free_fn *free_value) {
   /* Frees list cells. If free_value is non-NULL, uses it to free
      values. */
 

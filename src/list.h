@@ -22,10 +22,10 @@ typedef struct list {
 void list_push(void *value, list **l);
 void *list_pop(list **l);
 
-typedef bool (*sort_compare_fn)(void *, void *);
-void list_sort(list **l, sort_compare_fn less_eq);
+typedef bool sort_compare_fn(void *, void *);
+void list_sort(list **l, sort_compare_fn *less_eq);
 
-typedef void (*free_fn)(void *);
-void list_free(list *l, free_fn free_value);
+typedef void free_fn(void *);
+void list_free(list *l, free_fn *free_value);
 
 #endif
