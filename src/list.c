@@ -112,3 +112,29 @@ void list_free(list *l, free_fn *free_value) {
     free(old_cell);
   }
 }
+
+list *list_copy(list *l, copy_fn *copy_value) {
+  list *new_list = NULL;
+  list *new_list_tail;
+  LIST_FOREACH(cell, l) {
+    if (LIST_EMPTY(new_list)) {
+      new_list = malloc(sizeof *new_list);
+      if (copy_value) {
+        new_list->value = copy_value(cell->value);
+      } else {
+        new_list->value = cell->value;
+      }
+      new_list_tail = new_list;
+    } else {
+      new_list_tail->tail = malloc(sizeof *new_list_tail);
+      LIST_NEXT(new_list_tail);
+      if (copy_value) {
+        new_list_tail->value = copy_value(cell->value);
+      } else {
+        new_list_tail->value = cell->value;
+      }
+    }
+  }
+  new_list_tail->tail = NULL;
+  return new_list;
+}

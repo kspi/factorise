@@ -28,4 +28,7 @@ void list_sort(list **l, sort_compare_fn *less_eq);
 typedef void free_fn(void *);
 void list_free(list *l, free_fn *free_value);
 
+typedef void *copy_fn(void *);
+list *list_copy(list *l, copy_fn *copy_value);
+
 #endif
