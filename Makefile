@@ -5,13 +5,15 @@ SOURCES := \
 	src/factorise.c \
 	src/number.c \
 	src/list.c \
+	src/bignum.c
 
 HEADERS := \
 	src/factorise.h \
 	src/number.h \
 	src/list.h \
+	src/bignum.h
 
-TESTS := test_list
+TESTS := test_list test_bignum
 
 OBJS := $(patsubst %.c,%.o,$(SOURCES))
 TEST_OBJS := $(subst src/main.o,,$(OBJS))
