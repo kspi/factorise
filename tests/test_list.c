@@ -1,11 +1,11 @@
 #include "test.h"
 #include "list.h"
 
-bool test_list_sorted(struct list *list) {
-  return LIST_EMPTY(list)
-    || LIST_EMPTY(list->tail)
-    || (LIST_HEAD(list, int) <= LIST_HEAD(list->tail, int)
-        && test_list_sorted(list->tail));
+bool test_list_sorted(list *l) {
+  return LIST_EMPTY(l)
+    || LIST_EMPTY(l->tail)
+    || (LIST_HEAD(l, int) <= LIST_HEAD(l->tail, int)
+        && test_list_sorted(l->tail));
 }
 
 bool int_less_eq(void *a, void *b) {
@@ -14,18 +14,19 @@ bool int_less_eq(void *a, void *b) {
 
 BEGIN_TEST
 
-SHOW(struct list *list = NULL; int x = 1, y = 42, z = 91);
-TEST(LIST_EMPTY(list));
-SHOW(list_push(&z, &list); list_push(&y, &list); list_push(&x, &list));
-TEST(test_list_sorted(list));
-TEST(list_pop(&list) == &x);
-TEST(*(int *)list_pop(&list) == 42);
-TEST(!LIST_EMPTY(list));
-SHOW(list_push(&y, &list); list_push(&z, &list));
-SHOW(list_sort(&list, int_less_eq));
-TEST(test_list_sorted(list));
-TEST(*(int *)list_pop(&list) == 42);
-TEST(list_pop(&list) == list_pop(&list));
-TEST(LIST_EMPTY(list));
+SHOW(list *l = NULL; int x = 1, y = 42, z = 91);
+TEST(LIST_EMPTY(l));
+SHOW(list_push(&z, &l); list_push(&y, &l); list_push(&x, &l));
+TEST(test_list_sorted(l));
+TEST(list_pop(&l) == &x);
+TEST(*(int *)list_pop(&l) == 42);
+TEST(!LIST_EMPTY(l));
+SHOW(list_push(&y, &l); list_push(&z, &l));
+SHOW(list_sort(&l, int_less_eq));
+TEST(test_list_sorted(l));
+TEST(*(int *)list_pop(&l) == 42);
+TEST(list_pop(&l) == list_pop(&l));
+TEST(LIST_EMPTY(l));
+SHOW(list_push(&y, &l); list_push(&z, &l); list_free(l, NULL));
 
 END_TEST
