@@ -100,3 +100,15 @@ void list_sort(list **l, sort_compare_fn less_eq) {
     sublist_size *= 2;
   } while (merges > 1);
 }
+
+void list_free(list *l, free_fn free_value) {
+  /* Frees list cells. If free_value is non-NULL, uses it to free
+     values. */
+
+  while (!LIST_EMPTY(l)) {
+    if (free_value) free_value(l->value);
+    list *old_cell = l;
+    LIST_NEXT(l);
+    free(old_cell);
+  }
+}
