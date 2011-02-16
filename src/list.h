@@ -5,24 +5,24 @@
 #include "number.h"
 
 /*
- * struct list* — singly linked list of numbers.
+ * list * — singly linked list of numbers.
  */
 
-struct list {
+typedef struct list {
   void *value;
   struct list *tail;
-};
+} list;
 
-#define LIST_EMPTY(list) (!(list))
-#define LIST_NEXT(list) (list) = (list)->tail
+#define LIST_EMPTY(l) (!(l))
+#define LIST_NEXT(l) (l) = (l)->tail
 #define LIST_HEAD(l, elemtype) (*(elemtype *)(l)->value)
 #define LIST_FOREACH(cell, l) \
-  for (struct list *cell = (l); !LIST_EMPTY(cell); LIST_NEXT(cell))
+  for (list *cell = (l); !LIST_EMPTY(cell); LIST_NEXT(cell))
 
-void list_push(void *value, struct list **list);
-void *list_pop(struct list **list);
+void list_push(void *value, list **l);
+void *list_pop(list **l);
 
 typedef bool (*sort_compare_fn)(void *, void *);
-void list_sort(struct list **list, sort_compare_fn less_eq);
+void list_sort(list **l, sort_compare_fn less_eq);
 
 #endif

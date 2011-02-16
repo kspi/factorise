@@ -68,7 +68,7 @@ bool is_square(number x) {
   return x == square(isqrt(x));
 }
 
-void get_fermat_factors(number n, struct list **out, bool *prime) {
+void get_fermat_factors(number n, list **out, bool *prime) {
   /* The function accepts a natural number.
 
      If the number is composite, it put two of its (not necessarily
@@ -118,9 +118,9 @@ void get_fermat_factors(number n, struct list **out, bool *prime) {
   }
 }
 
-struct list *factorise(number n) {
-  struct list *prime_factors = NULL;
-  struct list *factors = NULL;
+list *factorise(number n) {
+  list *prime_factors = NULL;
+  list *factors = NULL;
 
 #if UNSIGNED == 0
   if (n < -1) {

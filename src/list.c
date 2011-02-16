@@ -2,22 +2,22 @@
 #include <stdlib.h>
 #include "list.h"
 
-void list_push(void *value, struct list **list) {
-  struct list *new_head = malloc(sizeof *new_head);
-  new_head->value = value;
-  new_head->tail = *list;
-  *list = new_head;
+void list_push(void *value, list **l) {
+  list *new_list = malloc(sizeof *new_list);
+  new_list->value = value;
+  new_list->tail = *l;
+  *l = new_list;
 }
 
-void *list_pop(struct list **list) {
-  void *value = (*list)->value;
-  struct list *old_head = *list;
-  *list = (*list)->tail;
-  free(old_head);
+void *list_pop(list **l) {
+  void *value = (*l)->value;
+  list *old_list = *l;
+  *l = (*l)->tail;
+  free(old_list);
   return value;
 }  
 
-static unsigned int list_skip(struct list **list, unsigned int n) {
+static unsigned int list_skip(list **list, unsigned int n) {
   /* Advances list by n elements or until the end.
 
      Returns the actual number of elements skipped. */
@@ -31,7 +31,7 @@ static unsigned int list_skip(struct list **list, unsigned int n) {
   return skipped;
 }
 
-void list_sort(struct list **list, sort_compare_fn less_eq) {
+void list_sort(list **l, sort_compare_fn less_eq) {
   /* Merge sort list in place in O(n log n) time and O(1) space. */
   
   unsigned int merges;          /* Amount of merges done last
@@ -41,12 +41,12 @@ void list_sort(struct list **list, sort_compare_fn less_eq) {
   do {
     /* Repeatedly merge sublists of size sublist_size into *list: */
     
-    struct list *p, *q;         /* Left and right sublist pointers */
+    list *p, *q;                /* Left and right sublist pointers */
     unsigned int psize, qsize;  /* and their sizes. */
     
-    p = *list;                  /* Start at the beginning of list. */
+    p = *l;                     /* Start at the beginning of list. */
 
-    struct list *tail = NULL;   /* The current last element of the
+    list *tail = NULL;          /* The current last element of the
                                    list that we are building up. */
 
     merges = 0;
@@ -61,7 +61,7 @@ void list_sort(struct list **list, sort_compare_fn less_eq) {
       while ((psize > 0) || ((qsize > 0) && (!LIST_EMPTY(q)))) {
         /* While at least one list has elements: */
         
-        struct list *elem;
+        list *elem;
 
         /* Pick the smaller one … */
         if (psize == 0) {       /* p empty, pick q */
@@ -85,7 +85,7 @@ void list_sort(struct list **list, sort_compare_fn less_eq) {
 
         /* … append it to the new list. */
         if (LIST_EMPTY(tail)) {
-          *list = elem;
+          *l = elem;
         } else {
           tail->tail = elem;
         }

@@ -15,7 +15,7 @@ void usage(char *program) {
   exit(1);
 }
 
-void sanity_check(number n, struct list *factors) {
+void sanity_check(number n, list *factors) {
   number product = 1;
 
   LIST_FOREACH(cell, factors) {
@@ -48,7 +48,7 @@ int main(int argc, char **argv) {
     }
     
     number n = strtonum(argv[numidx]);
-    struct list *factors = factorise(n);
+    list *factors = factorise(n);
     list_sort(&factors, num_less_eq);
     LIST_FOREACH(cell, factors) {
       printf(NUMFMT, LIST_HEAD(cell, number));

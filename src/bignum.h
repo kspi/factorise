@@ -13,7 +13,7 @@
 typedef uint32_t bignum_chunk;
 
 typedef struct {
-  struct list *chunks;
+  list *chunks;
   unsigned int size;            /* in chunks */
 } bignum;
 

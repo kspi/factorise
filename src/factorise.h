@@ -6,6 +6,6 @@
 #include "number.h"
 
 extern bool verbose_factoring;
-struct list *factorise(number n);
+list *factorise(number n);
 
 #endif

@@ -18,8 +18,8 @@ bool bignum_eq(bignum *a, bignum *b) {
   if (a->size != b->size) {
     return false;
   } else {
-    struct list *p = a->chunks;
-    struct list *q = b->chunks;
+    list *p = a->chunks;
+    list *q = b->chunks;
     
   loop:
     if (LIST_EMPTY(p) && LIST_EMPTY(q)) {
