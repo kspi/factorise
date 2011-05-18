@@ -10,6 +10,6 @@
    greitai, bet priešingu atveju gali užtukrukti gana ilgai.
 
 ** Naudojimas
-   ./factorise [-v] SKAIČIUS
+   ~./factorise [-v] SKAIČIUS~
 
-   Parametras -v parodo skaidymo procesą.
+   Parametras ~-v~ parodo skaidymo procesą.
