@@ -1,17 +1,10 @@
 APP := factorise
 
-SOURCES := \
-	src/main.c \
-	src/factorise.c \
-	src/number.c \
-	src/list.c \
+SOURCES := $(wildcard src/*.c)
+HEADERS := $(wildcard src/*.h)
 
-HEADERS := \
-	src/factorise.h \
-	src/number.h \
-	src/list.h \
-
-TESTS := test_list
+TEST_SOURCES := $(wildcard tests/test_*.c)
+TESTS := $(patsubst tests/test_%.c,test_%,$(TEST_SOURCES))
 
 OBJS := $(patsubst %.c,%.o,$(SOURCES))
 TEST_OBJS := $(subst src/main.o,,$(OBJS))
@@ -23,9 +16,8 @@ LDFLAGS :=
 all: $(APP) test-all
 
 .PHONY: test-all
-test-all: test.sh $(TESTS)
+test-all: test-factorise $(TESTS)
 	for test in $(TESTS); do ./$$test || exit 1; done
-	./test.sh
 
 .PHONY: test-$(APP)
 test-$(APP): $(APP) test.sh
