@@ -4,12 +4,13 @@
 #include <stdlib.h>
 #include "number.h"
 
+#define OUT_OF_RANGE_FORMAT ("Klaida: skaičius %s nepriklauso intervalui [" NUMFMT ", " NUMFMT "].\n")
+
 number strtonum(const char *x) {
 #if UNSIGNED
-  while (*x == ' ') ++x;        /* skip spaces */
+  while (*x == ' ') ++x;        /* Praleisti tarpus */
   if (*x == '-') {
-    fprintf(stderr, "Number out of range [" NUMFMT ", " NUMFMT "]: %s\n",
-            NUMBER_MIN, NUMBER_MAX, x);
+    fprintf(stderr, OUT_OF_RANGE_FORMAT, x, NUMBER_MIN, NUMBER_MAX);
     exit(1);
   }
 #endif
@@ -18,11 +19,10 @@ number strtonum(const char *x) {
   char *endptr;
   number ret = strtoull(x, &endptr, 0);
   if ((errno == EINVAL) || (*x && *endptr)) {
-    fprintf(stderr, "Invalid number: %s\n", x);
+    fprintf(stderr, "Netinkamas skaičius: %s\n", x);
     exit(1);
   } else if (errno == ERANGE) {
-    fprintf(stderr, "Number out of range [" NUMFMT ", " NUMFMT "]: %s\n",
-            NUMBER_MIN, NUMBER_MAX, x);
+    fprintf(stderr, OUT_OF_RANGE_FORMAT, x, NUMBER_MIN, NUMBER_MAX);
     exit(1);
   }
 

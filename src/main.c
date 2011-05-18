@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 #include "factorise.h"
 
 /*
@@ -9,8 +10,9 @@
 
 void usage(char *program) {
   fprintf(stderr,
-          "Usage: %s [-v] NUMBER\n"
-          "  -v shows the factoring process.\n",
+          "%s [-v] SKAIČIUS\n"
+          "\n"
+          "Parametras -v parodo skaidymo procesą.\n",
           program);
   exit(1);
 }
@@ -22,11 +24,7 @@ void sanity_check(number n, list *factors) {
     product *= LIST_HEAD(cell, number);
   }
     
-  if (product != n) {
-    fprintf(stderr, "Logic error: product of factors is " NUMFMT "\n",
-            product);
-    exit(1);
-  }
+  assert(product == n);
 }
 
 int main(int argc, char **argv) {
@@ -39,9 +37,6 @@ int main(int argc, char **argv) {
       if (strncmp(argv[numidx], "-v", 3) == 0) {
         ++numidx;
         verbose_factoring = true;
-      } else if (strncmp(argv[numidx], "-t", 3) == 0) {
-        ++numidx;
-        /* tex_output = true; */
       } else {
         options_done = true;
       }

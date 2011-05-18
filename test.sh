@@ -21,13 +21,13 @@ t() {
     fi
 }
 
-t -1 'Number out of range'
-t asd 'Invalid number'
+t -1 'nepriklauso intervalui'
+t asd 'Netinkamas skaičius'
 t 0 0
 t 1 1
 t 2 2
 t 17191 17191
-t '-v 17191' Factoring
+t '-v 17191' Skaidomas
 t 10 2 5
 t 1010 2 5 101
 t 10101 3 7 13 37

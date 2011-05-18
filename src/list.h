@@ -5,7 +5,7 @@
 #include "number.h"
 
 /*
- * list * — singly linked list of numbers.
+ * list * — vienkryptis void* sąrašas
  */
 
 typedef struct list {

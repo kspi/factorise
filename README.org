@@ -1,9 +1,15 @@
 
 * Factorise
 
-** Description
+** Aprašymas
 
-   Command line program which factorises a number using the Fermat's
-   factorisation method. It doesn't use floating point numbers. It's
-   designed to use any kind of C integer type.
+   Programa išskaido sveiką skaičių į pirminius dauginamuosius,
+   iteratyviai naudodama Fermat faktorizavimo metodą.
+   
+   Jeigu skirtumas tarp daugiklių nedidelis, tai algoritmas veikia
+   greitai, bet priešingu atveju gali užtukrukti gana ilgai.
 
+** Naudojimas
+   ./factorise [-v] SKAIČIUS
+
+   Parametras -v parodo skaidymo procesą.

@@ -13,51 +13,34 @@ bool verbose_factoring = false;
 
 
 /*
- * Numeric functions.
+ * Funkcijos darbui su skaičiais.
  */
 
 number square(number x) {
   return x * x;
 }
 
-number ipow(number base, number degree) {
-  /* Raises the integer base to the degree power. O(log n) time. */
-  
-  number result = 1;
-  while (degree > 0) {
-    if (degree % 2) {           /* If degree is odd, just multiply. */
-      result *= base;
-      --degree;
-    } else {                    /* If degree is even, b^n = (b^2)^(n/2). */
-      base *= base;
-      degree >>= 1;
-    }
-  } 
-  return result;
-}
+/* POW2 pakelia 2 x-uoju laipsniu. */
+#define POW2(x) ((number)1 << (x))
 
 number isqrt(number n) {
   number root = 0;
   
-  /* Start guessing with the second to middle bit, since it is the
-     largest bit that can be a square.
-
-     For example, with 32 bit integers, sizeof(int32_t)*4-1 would be 15
-     and 2^15 squared would be 2^30, but 2^16 squared would be 2^32,
-     which is larger than 2^31-1, the maximum value of 32 bit
-     integers.
+  /* Jeigu number sudaro k bitų, tai pradedame spelioti nuo 2^((k/2) -
+     1). Tai skaičius, kur nustatytas vienas bitas, mažiau reikšmingas
+     už vidurinįjį. Tai didžiausias skaičius, kurio kvadratas telpa į
+     number.
   */
-  number delta = ipow(2, sizeof(number) * 4 - 1);
+  number delta = POW2(sizeof delta * 4 - 1);
 
   while (delta != 0) {
-    if (square(root | delta) <= n) { /* If we can increase root by delta … */
-      root |= delta;                 /* … do it. */
+    if (square(root | delta) <= n) { /* Rezultate yra delta bitas … */
+      root |= delta;                 /* … tai nustatome jį root. */
     }
-    /* Also, + is equivalent to | here, because delta always has one
-       bit set, and that bit is never set in root before the
-       operation. */
+    /* Beje, delta visada turi vieną bitą, taigi galime vietoje +
+       naudoti |. */
 
-    /* Try next bit: */
+    /* Bandome sekantį bitą: */
     delta >>= 1;
   }
   
@@ -69,29 +52,29 @@ bool is_square(number x) {
 }
 
 void get_fermat_factors(number n, list **out, bool *prime) {
-  /* The function accepts a natural number.
+  /* Funkcija priima natūralų skaičių n.
 
-     If the number is composite, it put two of its (not necessarily
-     prime, but >1) factors to *out and sets *prime to false (it prime
-     is not NULL).
-     
-     Otherwise it sets *prime to true (even though 1 isn't prime).
+     Jei skaičius sudėtinis, tai funkcija įdeda du jo daliklius
+     (nebūtinai pirminius, bet >1) į number'ų sąrašą *out ir nustato
+     *prime į false, jei prime ne nulis.
+
+     Jei skaičius pirminis arba 1, nustato *prime į true.
   */
 
-  VERBOSE_PRINT("Factoring " NUMFMT ": ", n);
+  VERBOSE_PRINT("Skaidomas " NUMFMT ": ", n);
   
   if (n <= 3) {
-    /* No factors. */
+    /* Nėra daliklių. */
     if (prime) *prime = true;
-    VERBOSE_PRINT("no factors.\n");
+    VERBOSE_PRINT("nėra daliklių.\n");
   } else if ((n % 2) == 0) {
-    /* Even number. */
+    /* Lyginis skaičius. */
     if (prime) *prime = false;
     list_push(new_num(2), out);
     list_push(new_num(n / 2), out);
-    VERBOSE_PRINT(NUMFMT " and " NUMFMT ".\n", (number) 2, n / 2);
+    VERBOSE_PRINT(NUMFMT " ir " NUMFMT ".\n", (number) 2, n / 2);
   } else {
-    /* Search for factors. */
+    /* Fermat algoritmas. */
     number a = isqrt(n);
     number bsqr;
 
@@ -99,18 +82,19 @@ void get_fermat_factors(number n, list **out, bool *prime) {
   loop:
     bsqr = square(a) - n;
     if (a > ((n - 3) / 2)) {
-      /* End of iteration reached and no factors found. */
+      /* Pasiektas maksimalus iteracijų skaičius ir nerasti
+         dalikliai. */
       if (prime) *prime = true;
-      VERBOSE_PRINT("no factors (%u iterations).\n", iterations);
+      VERBOSE_PRINT("nėra daliklių (%u iter.).\n", iterations);
     } else if (is_square(bsqr)) {
-      /* Factors found. */
+      /* Rasti dalikliai. */
       number b = isqrt(bsqr);
       if (prime) *prime = false;
       list_push(new_num(a + b), out);
       list_push(new_num(a - b), out);
-      VERBOSE_PRINT(NUMFMT " and " NUMFMT ".\n", a + b, a - b);
+      VERBOSE_PRINT(NUMFMT " ir " NUMFMT ".\n", a + b, a - b);
     } else {
-      /* Try the next pair of numbers. */
+      /* Bandyti kitą skaičių porą. */
       ++a;
       ++iterations;
       goto loop;
