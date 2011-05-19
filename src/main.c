@@ -39,6 +39,7 @@ int main(int argc, char **argv) {
   if (argc <= 1 || strncmp(argv[1], "-h", 3) == 0) {
     usage(argv[0]);
   } else {
+    /* Apdorojama komandinė eilutė. */
     unsigned int numidx = 1;
     bool options_done = false;
     while (!options_done) {
@@ -54,12 +55,15 @@ int main(int argc, char **argv) {
     }
     
     number n = strtonum(argv[numidx]);
-    multiset *factors = factorise(n);
+    multiset *factors = factorise(n); /* Skaidomas skaičius. */
 
+    /* Tikrinama, ar skaičius išskaidytas teisingai (atsarga gėdos
+       nedaro). */
     number product = 1;
     multiset_foreach(factors, multiply_by_factor, &product);
     assert(product == n);
 
+    /* Išvedamas rezultatas. */
     multiset_foreach(factors, print_factor, NULL);
     printf("\n");
   }
