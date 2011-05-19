@@ -2,10 +2,10 @@
 #define INCLUDED_factorise_h
 
 #include <stdbool.h>
-#include "list.h"
 #include "number.h"
+#include "multiset.h"
 
 extern bool verbose_factoring;
-list *factorise(number n);
+multiset *factorise(number n);
 
 #endif

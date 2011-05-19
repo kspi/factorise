@@ -2,15 +2,15 @@
 #include <stdlib.h>
 #include "list.h"
 
-void list_push(void *value, list **l) {
+void list_push(number value, list **l) {
   list *new_list = malloc(sizeof *new_list);
   new_list->value = value;
   new_list->tail = *l;
   *l = new_list;
 }
 
-void *list_pop(list **l) {
-  void *value = (*l)->value;
+number list_pop(list **l) {
+  number value = (*l)->value;
   list *old_list = *l;
   *l = (*l)->tail;
   free(old_list);
@@ -31,7 +31,7 @@ static unsigned int list_skip(list **list, unsigned int n) {
   return skipped;
 }
 
-void list_sort(list **l, sort_compare_fn *less_eq) {
+void list_sort(list **l) {
   /* Merge sort algoritmu surūšiuoja sąrašus vietoje. Naudoja O(1)
      atminties ir O(n log n) operacijų. */
   
@@ -73,7 +73,7 @@ void list_sort(list **l, sort_compare_fn *less_eq) {
           elem = p;
           list_skip(&p, 1);
           --psize;          
-        } else if (less_eq(p->value, q->value)) {
+        } else if (p->value <= q->value) {
           /* p mažesnis arba lygus, išrenkam p (kad rūšiavimas būtų stabilus) */
           elem = p;
           list_skip(&p, 1);
@@ -102,40 +102,13 @@ void list_sort(list **l, sort_compare_fn *less_eq) {
   } while (merges > 1);
 }
 
-void list_free(list *l, free_fn *free_value) {
+void list_free(list *l) {
   /* Atlaisvina sąrašui išskirta atmintį. Jei free_value ne nulis, tai
      naudoja tą funkciją atlaisvinti sąrašo reikšmėms. */
 
   while (!LIST_EMPTY(l)) {
-    if (free_value) free_value(l->value);
     list *old_cell = l;
     LIST_NEXT(l);
     free(old_cell);
   }
-}
-
-list *list_copy(list *l, copy_fn *copy_value) {
-  list *new_list = NULL;
-  list *new_list_tail;
-  LIST_FOREACH(cell, l) {
-    if (LIST_EMPTY(new_list)) {
-      new_list = malloc(sizeof *new_list);
-      if (copy_value) {
-        new_list->value = copy_value(cell->value);
-      } else {
-        new_list->value = cell->value;
-      }
-      new_list_tail = new_list;
-    } else {
-      new_list_tail->tail = malloc(sizeof *new_list_tail);
-      LIST_NEXT(new_list_tail);
-      if (copy_value) {
-        new_list_tail->value = copy_value(cell->value);
-      } else {
-        new_list_tail->value = cell->value;
-      }
-    }
-  }
-  new_list_tail->tail = NULL;
-  return new_list;
 }

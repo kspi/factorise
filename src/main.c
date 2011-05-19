@@ -9,22 +9,30 @@
  */
 
 void usage(char *program) {
-  fprintf(stderr,
-          "%s [-v] SKAIČIUS\n"
-          "\n"
-          "Parametras -v parodo skaidymo procesą.\n",
-          program);
+  printf("%s [-v] [-t] SKAIČIUS\n"
+         "    -v — parodo skaidymo procesą.\n"
+         "    -t — rezultatus sutraukti į laipsnius, TeX formatu.\n",
+         program);
   exit(1);
 }
 
-void sanity_check(number n, list *factors) {
-  number product = 1;
+void multiply_by_factor(number n, number deg, void *product) {
+  *(number *)product *= ipow(n, deg);
+}
 
-  LIST_FOREACH(cell, factors) {
-    product *= LIST_HEAD(cell, number);
+bool tex_format = false;
+
+void print_factor(number n, number deg, void *unused) {
+  if (tex_format) {
+    printf(NUMFMT, n);
+    if (deg > 1) printf("^" NUMFMT, deg);
+    printf(" ");
+  } else {
+    while (deg) {
+      printf(NUMFMT " ", n);
+      --deg;
+    }
   }
-    
-  assert(product == n);
 }
 
 int main(int argc, char **argv) {
@@ -37,23 +45,23 @@ int main(int argc, char **argv) {
       if (strncmp(argv[numidx], "-v", 3) == 0) {
         ++numidx;
         verbose_factoring = true;
+      } else if (strncmp(argv[numidx], "-t", 3) == 0) {
+        ++numidx;
+        tex_format = true;
       } else {
         options_done = true;
       }
     }
     
     number n = strtonum(argv[numidx]);
-    list *factors = factorise(n);
-    list_sort(&factors, num_less_eq);
-    LIST_FOREACH(cell, factors) {
-      printf(NUMFMT, LIST_HEAD(cell, number));
-      if (!LIST_EMPTY(cell->tail)) {
-        printf(" ");
-      } else {
-        printf("\n");
-      }
-    }
-    sanity_check(n, factors);
+    multiset *factors = factorise(n);
+
+    number product = 1;
+    multiset_foreach(factors, multiply_by_factor, &product);
+    assert(product == n);
+
+    multiset_foreach(factors, print_factor, NULL);
+    printf("\n");
   }
   return 0;
 }

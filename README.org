@@ -12,4 +12,5 @@
 ** Naudojimas
    ~./factorise [-v] SKAIČIUS~
 
-   Parametras ~-v~ parodo skaidymo procesą.
+   Parametras ~-v~ parodo skaidymo procesą.  Parametras ~-t~ padaro,
+   kad rezultatai būtų sutraukti į laipsnius, TeX formatu.

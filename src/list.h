@@ -5,30 +5,25 @@
 #include "number.h"
 
 /*
- * list * — vienkryptis void* sąrašas
+ * list * — vienkryptis number sąrašas
  */
 
 typedef struct list {
-  void *value;
+  number value;
   struct list *tail;
 } list;
 
 #define LIST_EMPTY(l) (!(l))
 #define LIST_NEXT(l) (l) = (l)->tail
-#define LIST_HEAD(l, elemtype) (*(elemtype *)(l)->value)
+#define LIST_HEAD(l) ((l)->value)
 #define LIST_FOREACH(cell, l) \
   for (list *cell = (l); !LIST_EMPTY(cell); LIST_NEXT(cell))
 
-void list_push(void *value, list **l);
-void *list_pop(list **l);
+void list_push(number value, list **l);
+number list_pop(list **l);
 
-typedef bool sort_compare_fn(void *, void *);
-void list_sort(list **l, sort_compare_fn *less_eq);
+void list_sort(list **l);
 
-typedef void free_fn(void *);
-void list_free(list *l, free_fn *free_value);
-
-typedef void *copy_fn(void *);
-list *list_copy(list *l, copy_fn *copy_value);
+void list_free(list *l);
 
 #endif

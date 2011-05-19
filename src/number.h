@@ -1,11 +1,7 @@
 #ifndef INCLUDED_number_h
 #define INCLUDED_number_h
 
-#include "list.h"
-
-/*
- * number — Abstract integer type.
- */
+#include <stdbool.h>
 
 typedef unsigned long long number;
 #define NUMFMT "%llu"
@@ -14,7 +10,13 @@ typedef unsigned long long number;
 #define UNSIGNED 1
 
 number strtonum(const char *x);
-number *new_num(number n);
-bool num_less_eq(void *a, void *b);
+
+/* POW2 pakelia 2 x-uoju laipsniu. */
+#define POW2(x) ((number)1 << (x))
+
+number square(number x);
+number ipow(number base, number degree);
+number isqrt(number n);
+bool is_square(number x);
 
 #endif

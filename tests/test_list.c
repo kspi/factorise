@@ -5,7 +5,7 @@
 bool test_list_sorted(list *l) {
   return LIST_EMPTY(l)
     || LIST_EMPTY(l->tail)
-    || (LIST_HEAD(l, int) <= LIST_HEAD(l->tail, int)
+    || (LIST_HEAD(l) <= LIST_HEAD(l->tail)
         && test_list_sorted(l->tail));
 }
 
@@ -21,22 +21,20 @@ int *int_copy(int *x) {
 
 BEGIN_TEST
 
-SHOW(list *l = NULL; int x = 1, y = 42, z = 91);
+SHOW(list *l = NULL);
 TEST(LIST_EMPTY(l));
-SHOW(list_push(&z, &l); list_push(&y, &l); list_push(&x, &l));
+SHOW(list_push(3, &l); list_push(2, &l); list_push(1, &l));
 TEST(test_list_sorted(l));
-TEST(list_pop(&l) == &x);
-TEST(*(int *)list_pop(&l) == 42);
+TEST(list_pop(&l) == 1);
+TEST(list_pop(&l) == 2);
 TEST(!LIST_EMPTY(l));
-SHOW(list_push(&y, &l); list_push(&z, &l));
-SHOW(list *l_copy = list_copy(l, (copy_fn *)int_copy));
-TEST(!LIST_EMPTY(l_copy));
-TEST(LIST_HEAD(l_copy, int) == z);
-SHOW(list_sort(&l, int_less_eq));
+SHOW(list_push(5, &l); list_push(4, &l));
+TEST(LIST_HEAD(l) == 4);
+SHOW(list_sort(&l));
 TEST(test_list_sorted(l));
-TEST(*(int *)list_pop(&l) == 42);
-TEST(list_pop(&l) == list_pop(&l));
+TEST(list_pop(&l) == 3);
+TEST(list_pop(&l) == 4);
+TEST(list_pop(&l) == 5);
 TEST(LIST_EMPTY(l));
-SHOW(list_push(&y, &l); list_push(&z, &l); list_free(l, NULL));
 
 END_TEST

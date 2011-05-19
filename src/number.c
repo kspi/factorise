@@ -29,12 +29,50 @@ number strtonum(const char *x) {
   return ret;
 }
 
-number *new_num(number n) {
-  number *ret = malloc(sizeof *ret);
-  *ret = n;
-  return ret;
+number square(number x) {
+  return x * x;
 }
 
-bool num_less_eq(void *a, void *b) {
-  return *(number *)a <= *(number *)b;
+number ipow(number base, number degree) {
+  /* Pakelia base laipsniu degree. O(log n) dauginimų. */
+  
+  number result = 1;
+  while (degree > 0) {
+    if (degree % 2) {
+      result *= base;
+      --degree;
+    } else {
+      base *= base;
+      degree >>= 1;
+    }
+  } 
+  return result;
+}
+
+number isqrt(number n) {
+  number root = 0;
+  
+  /* Jeigu number sudaro k bitų, tai pradedame spelioti nuo 2^((k/2) -
+     1). Tai skaičius, kur nustatytas vienas bitas, mažiau reikšmingas
+     už vidurinįjį. Tai didžiausias skaičius, kurio kvadratas telpa į
+     number.
+  */
+  number delta = POW2(sizeof delta * 4 - 1);
+
+  while (delta != 0) {
+    if (square(root | delta) <= n) { /* Rezultate yra delta bitas … */
+      root |= delta;                 /* … tai nustatome jį root. */
+    }
+    /* Beje, delta visada turi vieną bitą, taigi galime vietoje +
+       naudoti |. */
+
+    /* Bandome sekantį bitą: */
+    delta >>= 1;
+  }
+  
+  return root;
+}
+
+bool is_square(number x) {
+  return x == square(isqrt(x));
 }
